@@ -1,5 +1,5 @@
 <?php 
-	
+session_start();
 	require 'database.php';
 
 	$id = null;
@@ -13,30 +13,36 @@
 	
 	if ( !empty($_POST)) {
 		// keep track validation errors
-		$vendorError = null;
-		$custError = null;
-		$shipmentData = null;
+		$cust_idError = null;
+		$vendor_idError = null;
+		$data_Error = null;
+		$amount_Error = null;
 		
 		// keep track post values
-		$vendor = $_POST['vendor_id'];
-		$cust = $_POST['cust_id'];
-		$shipmentData = $_POST['shipment_data'];
+		$cust_id = $_POST['cust_id'];
+		$vendor_id = $_POST['vendor_id'];
+		$data = $_POST['data'];
+		$amount = $_POST['amount'];
 		
 		// validate input
 		$valid = true;
-
-		if (empty($vendor)) {
-			$vendorError = 'Please enter vendor';
+		if (empty($cust_id)) {
+			$cust_ideError = 'No Customer ID';
 			$valid = false;
 		}
 		
-		if (empty($cust)) {
-			$custError = 'Please enter cust';
+		if (empty($vendor_id)) {
+			$vendor_id = 'No Vendor ID';
 			$valid = false;
-		} 
+		}
 		
-		if (empty($shipmentData)) {
-			$shipmentDataError = 'Please enter shipmentData';
+		if (empty($data)) {
+			$data_Error = 'Please enter item details';
+			$valid = false;
+		}
+		
+		if (empty($amount)) {
+			$amount_Error = 'Please enter amount';
 			$valid = false;
 		}
 		
@@ -44,22 +50,25 @@
 		if ($valid) {
 			$pdo = Database::connect();
 			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			$sql = "UPDATE crudShipments set vendor_id = ?, cust_id = ?, shipment_data = ? WHERE shipment_id = ?";
+			$sql = "UPDATE crudShipments  set cust_id = ?, vendor_id = ?, data =?, amount = ? WHERE shipment_id = ?";
 			$q = $pdo->prepare($sql);
-			$q->execute(array($vendor,$cust,$shipmentData,$id));
+			$q->execute(array($cust_id,$vendor_id,$data,$amount,$id));
 			Database::disconnect();
 			header("Location: index.php");
 		}
 	} else {
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		$sql = "SELECT * FROM crudShipments where shipment_id = ?";
+		$sql = "SELECT * FROM crudShipments, crudCustomers, crudVendors WHERE 
+							crudShipments.cust_id = crudCustomers.cust_id AND 
+							crudShipments.vendor_id = crudVendors.vendor_id AND shipment_id = ?";
 		$q = $pdo->prepare($sql);
 		$q->execute(array($id));
 		$data = $q->fetch(PDO::FETCH_ASSOC);
-		$vendor = $data['vendor_id'];
-		$cust = $data['cust_id'];
-		$shipmentData = $data['shipment_data'];
+		$cust_id = $data['cust_id'];
+		$vendor_id = $data['vendor_id'];
+		$data = $data['data'];
+		$amount = $data['amount'];
 		Database::disconnect();
 	}
 ?>
@@ -81,36 +90,46 @@
 		    			<h3>Update a Shipment</h3>
 		    		</div>
     		
-	    			<form class="form-horizontal" action="updateShipment.php?id=<?php echo $id?>" method="post">
-					  <div class="control-group <?php echo !empty($vendorError)?'error':'';?>">
-					    <label class="control-label">vendor</label>
+	    			<form class="form-horizontal" action="updateShipment.php?id=<?php echo $id ?>" method="post">
+					  <div class="control-group <?php echo !empty($cust_idError)?'error':'';?>">
+					    <label class="control-label">Customer ID</label>
 					    <div class="controls">
-					      	<input name="vendor_id" type="text"  placeholder="vendor" value="<?php echo !empty($vendor)?$vendor:'';?>">
-					      	<?php if (!empty($vendorError)): ?>
-					      		<span class="help-inline"><?php echo $vendorError;?></span>
+					      	<input name="cust_id" type="text"  placeholder="ID" value="<?php echo !empty($cust_id)?$cust_id:'';?>" readonly style="background-color: #DCDCDC;">
+					      	<?php if (!empty($cust_idError)): ?>
+					      		<span class="help-inline"><?php echo $cust_idError;?></span>
 					      	<?php endif; ?>
 					    </div>
 					  </div>
-					  <div class="control-group <?php echo !empty($custError)?'error':'';?>">
-					    <label class="control-label">cust</label>
+					  <div class="control-group <?php echo !empty($vendor_idError)?'error':'';?>">
+					    <label class="control-label">Vendor ID</label>
 					    <div class="controls">
-					      	<input name="cust_id" type="text"  placeholder="cust" value="<?php echo !empty($cust)?$cust:'';?>">
-					      	<?php if (!empty($custError)): ?>
-					      		<span class="help-inline"><?php echo $custError;?></span>
+					      	<input name="vendor_id" type="text"  placeholder="ID" value="<?php echo !empty($vendor_id)?$vendor_id:'';?>" readonly style="background-color: #DCDCDC;">
+					      	<?php if (!empty($vendor_idError)): ?>
+					      		<span class="help-inline"><?php echo $vendor_idError;?></span>
 					      	<?php endif; ?>
 					    </div>
 					  </div>
-						  <div class="control-group <?php echo !empty($shipmentDataError)?'error':'';?>">
-					    <label class="control-label">shipmentData</label>
+					   </div>
+							 <div class="control-group <?php echo !empty($dataError)?'error':'';?>">
+					    <label class="control-label">Shipment Data</label>
 					    <div class="controls">
-					      	<input name="shipment_data" type="text"  placeholder="shipmentData" value="<?php echo !empty($shipmentData)?$shipmentData:'';?>">
-					      	<?php if (!empty($shipmentDataError)): ?>
-					      		<span class="help-inline"><?php echo $shipmentDataError;?></span>
-					      	<?php endif; ?>
+					      	<input name="data" type="text"  placeholder="data" value="<?php echo !empty($data)?$data:'';?>">
+					      	<?php if (!empty($dataError)): ?>
+					      		<span class="help-inline"><?php echo $dataError;?></span>
+					      	<?php endif;?>
 					    </div>
 					  </div>
-							
-
+					   <div class="control-group <?php echo !empty($amountError)?'error':'';?>">
+					    <label class="control-label">Shipment Amount</label>
+					    <div class="controls">
+					      	<input name="amount" type="text"  placeholder="amount" value="<?php echo !empty($amount)?$amount:'';?>">
+					      	<?php if (!empty($amountError)): ?>
+					      		<span class="help-inline"><?php echo $amountError;?></span>
+					      	<?php endif;?>
+					    </div>
+					  </div>
+					 
+					 
 					  <div class="form-actions">
 						  <button type="submit" class="btn btn-success">Update</button>
 						  <a class="btn" href="index.php">Back</a>

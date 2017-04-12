@@ -1,12 +1,22 @@
 <?php 
+
 	require 'database.php';
 
+	$shipment_id = null;
+	if ( !empty($_GET['shipment_id'])) {
+		$shipment_id = $_REQUEST['shipment_id'];
+	}
+	
+	if ( null==$shipment_id ) {
+		header("Location: index.php");
+	}
+	
 	if ( !empty($_POST)) {
 		// keep track validation errors
 		$cust_idError = null;
 		$vendor_idError = null;
-		$dataError = null;
-		$amountError = null;
+		$data_Error = null;
+		$amount_Error = null;
 		
 		// keep track post values
 		$cust_id = $_POST['cust_id'];
@@ -17,34 +27,49 @@
 		// validate input
 		$valid = true;
 		if (empty($cust_id)) {
-			$cust_idError = 'Please select a Cutomer';
+			$cust_ideError = 'No Customer ID';
 			$valid = false;
 		}
 		
 		if (empty($vendor_id)) {
-			$vendor_idError = 'Please select a Room';
+			$vendor_id = 'No Vendor ID';
 			$valid = false;
 		}
-			if (empty($data)) {
-			$dataError = 'Please enter valid data';
+		
+		if (empty($data)) {
+			$data_Error = 'Please enter item details';
 			$valid = false;
 		}
+		
 		if (empty($amount)) {
-			$amountError = 'Please enter valid amount';
+			$amount_Error = 'Please enter amount';
 			$valid = false;
 		}
 		
-		
-		// insert data
+		// update data
 		if ($valid) {
 			$pdo = Database::connect();
 			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			$sql = "INSERT INTO crudShipments (vendor_id, cust_id, shipment_data, shipment_amount) values(?, ?, ?, ?)";
+			$sql = "UPDATE crudShipments  set cust_id = ?, vendor_id = ?, data =?, amount = ? WHERE shipment_id = ?";
 			$q = $pdo->prepare($sql);
-			$q->execute(array($cust_id,$vendor_id, $data,$amount));
+			$q->execute(array($cust_id,$vendor_id,$data,$amount,$shipment_id));
 			Database::disconnect();
 			header("Location: index.php");
 		}
+	} else {
+		$pdo = Database::connect();
+		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$sql = "SELECT * FROM crudShipments, crudCustomers, crudVendors WHERE 
+							crudShipments.cust_id = crudCustomers.cust_id AND 
+							crudShipments.vendor_id = crudVendors.vendor_id AND shipment_id = ?";
+		$q = $pdo->prepare($sql);
+		$q->execute(array($shipment_id));
+		$data = $q->fetch(PDO::FETCH_ASSOC);
+		$cust_id = $data['cust_id'];
+		$vendor_id = $data['vendor_id'];
+		$data = $data['data'];
+		$amount = $data['amount'];
+		Database::disconnect();
 	}
 ?>
 
@@ -62,50 +87,29 @@
     
     			<div class="span10 offset1">
     				<div class="row">
-		    			<h3>Create a Shipment</h3>
+		    			<h3>Update a Reservation</h3>
 		    		</div>
     		
-	    			<form class="form-horizontal" action="createShipmentTest.php" method="post">
+	    			<form class="form-horizontal" action="updateShipment.php?shipment_id=<?php echo $shipment_id?>" method="post">
 					  <div class="control-group <?php echo !empty($cust_idError)?'error':'';?>">
-					    <label class="control-label">Customer</label>
+					    <label class="control-label">Customer ID</label>
 					    <div class="controls">
-					      	<?php
-								$pdo = Database::connect();
-								$sql = 'SELECT * FROM crudCustomers ORDER BY cust_id DESC';
-								
-								echo "<select class='form-control' name='cust_id' id='cust_id'>";
-								foreach ($pdo->query($sql) as $row) {
-									echo "<option value='" . $row['cust_id'] . " '> " . $row['cust_name'] . "</option>";
-								}
-								echo "</select>";
-								
-								Database::disconnect();
-							?>
+					      	<input name="cust_id" type="text"  placeholder="ID" value="<?php echo !empty($cust_id)?$cust_id:'';?>" readonly style="background-color: #DCDCDC;">
 					      	<?php if (!empty($cust_idError)): ?>
 					      		<span class="help-inline"><?php echo $cust_idError;?></span>
 					      	<?php endif; ?>
 					    </div>
 					  </div>
 					  <div class="control-group <?php echo !empty($vendor_idError)?'error':'';?>">
-					    <label class="control-label">Vendor</label>
+					    <label class="control-label">Vendor ID</label>
 					    <div class="controls">
-					      	<?php
-								$pdo = Database::connect();
-								$sql = 'SELECT * FROM crudVendors ORDER BY vendor_id DESC';
-								
-								echo "<select class='form-control' name='vendor_id' id='vendor_id'>";
-								foreach ($pdo->query($sql) as $row) {
-									echo "<option value='" . $row['vendor_id'] . " '> " . $row['vendor_name'] . "</option>";
-								}
-								echo "</select>";
-								
-								Database::disconnect();
-							?>
+					      	<input name="vendor_id" type="text"  placeholder="ID" value="<?php echo !empty($vendor_id)?$vendor_id:'';?>" readonly style="background-color: #DCDCDC;">
 					      	<?php if (!empty($vendor_idError)): ?>
 					      		<span class="help-inline"><?php echo $vendor_idError;?></span>
 					      	<?php endif; ?>
 					    </div>
 					  </div>
+					   </div>
 							 <div class="control-group <?php echo !empty($dataError)?'error':'';?>">
 					    <label class="control-label">Shipment Data</label>
 					    <div class="controls">
@@ -123,13 +127,16 @@
 					      		<span class="help-inline"><?php echo $amountError;?></span>
 					      	<?php endif;?>
 					    </div>
-					  </div>		  
+					  </div>
+					 
+					 
 					  <div class="form-actions">
-						  <button type="submit" class="btn btn-success">Create</button>
+						  <button type="submit" class="btn btn-success">Update</button>
 						  <a class="btn" href="index.php">Back</a>
 						</div>
 					</form>
 				</div>
+				
     </div> <!-- /container -->
   </body>
 </html>

@@ -94,7 +94,7 @@
 					      	<?php endif;?>
 					    </div>
 					  </div>
-					   <div class="control-group <?php echo !empty($dataError)?'error':'';?>">
+					   <div class="control-group <?php echo !empty($amountError)?'error':'';?>">
 					    <label class="control-label">Shipment Amount</label>
 					    <div class="controls">
 					      	<input name="amount" type="text"  placeholder="amount" value="<?php echo !empty($amount)?$amount:'';?>">

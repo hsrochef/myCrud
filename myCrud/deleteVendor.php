@@ -1,4 +1,5 @@
 <?php 
+session_start();
 	require 'database.php';
 	$id = 0;
 	

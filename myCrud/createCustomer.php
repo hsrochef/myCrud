@@ -1,5 +1,5 @@
 <?php 
-	
+session_start();	
 	require 'database.php';
 
 	if ( !empty($_POST)) {

@@ -1,4 +1,5 @@
 <?php 
+session_start();
 	require 'database.php';
 	$id = null;
 	if ( !empty($_GET['id'])) {
@@ -10,7 +11,7 @@
 	} else {
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		$sql = "SELECT * FROM crudShipments where cust_id = ?";
+		$sql = "SELECT * FROM crudShipments where shipment_id = ?";
 		$q = $pdo->prepare($sql);
 		$q->execute(array($id));
 		$data = $q->fetch(PDO::FETCH_ASSOC);

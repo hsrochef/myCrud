@@ -1,3 +1,25 @@
+<?php  
+session_start(); 
+
+if (empty($_SESSION['userid'])){ // user not set
+  login();
+  exit();
+}
+
+function login() {
+    echo '<form action="login.php" method="post">';
+	echo '<p>Username:';
+	echo '<input type="text" name="username"><br>';
+	echo '<p>Password:';
+	echo '<input type="password" name="password"><br>';
+	echo '<input type="submit" value="Submit">';
+	echo '</form>';
+	echo '<a class="btn btn-success" href="register.php">Register</a>';
+} 
+include 'database.php';
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,12 +31,10 @@
 <body>
     <div class="container">
             <div class="row">
-                <h3>Rochefort CRUD Customer</h3>
-            </div>
+                <h3>Rochefort CRUD Customer <a href="createCustomer.php" class="btn btn-success">Create</a></h3>
+			</div>
             <div class="row">
-			    <p>
-                    <a href="createCustomer.php" class="btn btn-success">Create</a>
-                </p>
+			   
                 <table class="table table-striped table-bordered">
                   <thead>
                     <tr>
@@ -26,9 +46,9 @@
                   </thead>
                   <tbody>
                   <?php
-                   include 'database.php';
-                   $pdo = Database::connect();
-                   $sql = 'SELECT * FROM crudCustomers ORDER BY cust_id DESC';
+					 //  include 'database.php'; already included
+					   $pdo = Database::connect();
+					   $sql = 'SELECT * FROM crudCustomers ORDER BY cust_id DESC';
                    foreach ($pdo->query($sql) as $row) {
                             echo '<tr>';
                             echo '<td>'. $row['cust_name'] . '</td>';
@@ -50,13 +70,11 @@
         </div>
 		
 			<div class="row">
-                <h3>Rochefort CRUD Vendor</h3>
+                <h3>Rochefort CRUD Vendor <a href="createVendor.php" class="btn btn-success">Create</a></h3>
             </div>
             <div class="row">
 		            <div class="row">
-			    <p>
-                    <a href="createVendor.php" class="btn btn-success">Create</a>
-                </p>
+			   
                 <table class="table table-striped table-bordered">
                   <thead>
                     <tr>
@@ -91,13 +109,11 @@
         </div>
 		
 			<div class="row">
-				<h3>Rochefort CRUD Shipment</h3>
+				<h3>Rochefort CRUD Shipment <a href="createShipment.php" class="btn btn-success">Create</a></h3>
             </div>
             <div class="row">
 		          <div class="row">
-			    <p>
-                    <a href="createShipment.php" class="btn btn-success">Create</a>
-                </p>
+			  
                 <table class="table table-striped table-bordered">
                   <thead>
                     <tr>
@@ -137,7 +153,7 @@
                   </tbody>
             </table>
         </div>
-		
+		<a href="logout.php" class="btn btn-danger">Log Out</a>
 		
 		
     </div> <!-- /container -->
