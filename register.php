@@ -15,11 +15,8 @@ if(isset($_POST['register_btn']))
 	$password = $_POST['password']; 
 	$password2 = $_POST['password2'];
 	
-	 $fileName = $_FILES['userfile']['name'];
-	$tmpName  = $_FILES['userfile']['tmp_name'];
-	$fileSize = $_FILES['userfile']['size'];
-	$fileType = $_FILES['userfile']['type'];
-	$content = file_get_contents($tmpName);
+
+
 $types = array('image/jpeg','image/gif','image/png');
 	if($filesize > 0) {
 		if(in_array($_FILES['userfile']['type'], $types)) {
@@ -35,7 +32,11 @@ $types = array('image/jpeg','image/gif','image/png');
 		}
 	}
 
-	
+	$fileName = $_FILES['userfile']['name'];
+	$tmpName  = $_FILES['userfile']['tmp_name'];
+	$fileSize = $_FILES['userfile']['size'];
+	$fileType = $_FILES['userfile']['type'];
+	$content = file_get_contents($tmpName);
 	
 	
      if($password==$password2)
@@ -108,9 +109,16 @@ Database::disconnect();
            <td><input type="password" name="password2" class="textInput"></td>
      </tr>
 	  <tr>
-           <td>File Upload: </td>
-           <td><input type="hidden" name="MAX_FILE_SIZE" value="16000000">
-				<input name="userfile" type="file" id="userfile"></td>
+        <div class="control-group <?php echo !empty($pictureError)?'error':'';?>">
+					<label class="control-label">Picture</label>
+					<div class="controls">
+						<input type="hidden" name="MAX_FILE_SIZE" value="16000000">
+						<input name="userfile" type="file" id="userfile">
+						
+					</div>
+				</div>
+
+
      </tr>
       <tr>
            <td><input type="submit" name="register_btn" class="Register"></td>
