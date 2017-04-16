@@ -62,6 +62,9 @@ session_start();
 					  </div>
 
 					    <div class="form-actions">
+						<?php
+						
+						?>
 						  <a class="btn" href="index.php">Back</a>
 					   </div>
 					

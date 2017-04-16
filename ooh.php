@@ -25,19 +25,13 @@ public function login() {
 public function displayCustomers()
 	{
 		$pdo = Database::connect();
-					   $sql = 'SELECT * FROM crudCustomers ORDER BY userid DESC';
+					   $sql = 'SELECT * FROM crudCustomers WHERE userid = "'.$_SESSION['userid'].'" ORDER BY userid DESC';
                    foreach ($pdo->query($sql) as $row) {
                             echo '<tr>';
                             echo '<td>'. $row['first_name'] . '</td>';
-                            echo '<td>'. $row['phone_number'] . '</td>';
+                            echo '<td>'. $row['last_name'] . '</td>';
                             echo '<td>'. $row['address'] . '</td>';
-							echo '<td width=250>';
 						
-							echo '<a class="btn btn-success" href="updateCustomer.php?id='.$row['userid'].'">Update</a>';
-							echo '&nbsp;';
-							echo '<a class="btn btn-danger" href="deleteCustomer.php?id='.$row['userid'].'">Delete</a>';
-							echo '</td>';
-							echo '</tr>';	
                    }
                    Database::disconnect();
 	}
@@ -51,13 +45,7 @@ public function displayVendors()
                             echo '<td>'. $row['vendor_name'] . '</td>';
                             echo '<td>'. $row['vendor_phone'] . '</td>';
                             echo '<td>'. $row['vendor_address'] . '</td>';
-							echo '<td width=250>';
-					
-							echo '<a class="btn btn-success" href="updateVendor.php?id='.$row['vendor_id'].'">Update</a>';
-							echo '&nbsp;';
-							echo '<a class="btn btn-danger" href="deleteVendor.php?id='.$row['vendor_id'].'">Delete</a>';
-							echo '</td>';
-							echo '</tr>';	
+						
                    }
                    Database::disconnect();
 	}
@@ -67,7 +55,8 @@ public function displayShipments()
                    $sql = 'SELECT shipment_id, first_name, vendor_name, shipment_data, shipment_amount
 						   FROM crudCustomers, crudVendors, crudShipments
 						   WHERE crudCustomers.userid = crudShipments.cust_id
-						   AND crudVendors.vendor_id = crudShipments.vendor_id';
+						   AND crudVendors.vendor_id = crudShipments.vendor_id
+						   AND "'.$_SESSION['userid'].'" = crudShipments.cust_id';
 						   foreach ($pdo->query($sql) as $row) {
                             echo '<tr>';
                             echo '<td>'. $row['shipment_id'] . '</td>';
@@ -76,7 +65,8 @@ public function displayShipments()
 							echo '<td>'. $row['shipment_data'] . '</td>';
                             echo '<td>'. $row['shipment_amount'] . '</td>';
 							echo '<td width=250>';
-						
+							echo '<a class="btn" href="readShipment.php?id='.$row['shipment_id'].'">Read</a>';
+							echo '&nbsp;';
 							echo '<a class="btn btn-success" href="updateShipment.php?id='.$row['shipment_id'].'">Update</a>';
 							echo '&nbsp;';
 							echo '<a class="btn btn-danger" href="deleteShipment.php?id='.$row['shipment_id'].'">Delete</a>';
@@ -108,7 +98,7 @@ public function displayCustomersHeading()
 	{
 		    echo'<div class="container">
             <div class="row">
-                <h3>Rochefort CRUD Customer <a href="createCustomer.php" class="btn btn-success">Create</a></h3>
+                <h3>Rochefort CRUD Customer </h3>
 			</div>
             <div class="row">
 			   
@@ -118,7 +108,6 @@ public function displayCustomersHeading()
                       <th>Customer Name</th>
                       <th>Customer Phone</th>
                       <th>Customer Address</th>
-					  <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>';
@@ -127,7 +116,7 @@ public function displayCustomersHeading()
             </table>
         </div>
 		<div class="row">
-                <h3>Rochefort CRUD Vendor <a href="createVendor.php" class="btn btn-success">Create</a></h3>
+                <h3>Rochefort CRUD Vendor </h3>
             </div>
             <div class="row">
 		            <div class="row">
@@ -138,7 +127,6 @@ public function displayCustomersHeading()
                       <th>Vendor Name</th>
                       <th>Vendor Phone</th>
                       <th>Vendor Address</th>
-					  <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>';
@@ -146,9 +134,9 @@ public function displayCustomersHeading()
                   echo '</tbody>
             </table>
         </div>
-		
+		</div>
 			<div class="row">
-				<h3>Rochefort CRUD Shipment <a href="createShipment.php" class="btn btn-success">Create</a></h3>
+				<h3>Rochefort CRUD Shipment <a href="createShipmentuser.php" class="btn btn-success">Create</a></h3>
             </div>
             <div class="row">
 		          <div class="row">
@@ -168,7 +156,7 @@ public function displayCustomersHeading()
                    Customers::displayShipments();
                   echo '</tbody>
             </table>
-        </div>
+        
 		<a href="logout.php" class="btn btn-danger">Log Out</a></div>';
 	}
 

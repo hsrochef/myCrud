@@ -1,6 +1,10 @@
 <?php 
-	session_start();
-	require 'database.php';
+session_start();
+if(!isset($_SESSION["userid"])){ // if "user" not set,
+	session_destroy();
+	header('Location: login.php');     // go to login page
+	exit;
+}	require 'database.php';
 
 	$id = null;
 	if ( !empty($_GET['id'])) {
@@ -44,7 +48,7 @@
 		if ($valid) {
 			$pdo = Database::connect();
 			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			$sql = "UPDATE crudCustomers set cust_name = ?, cust_phone = ?, cust_address = ? WHERE cust_id = ?";
+			$sql = "UPDATE crudCustomers set first_name = ?, phone_number = ?, address = ? WHERE userid = ?";
 			$q = $pdo->prepare($sql);
 			$q->execute(array($name,$phone,$address,$id));
 			Database::disconnect();
@@ -53,13 +57,13 @@
 	} else {
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		$sql = "SELECT * FROM crudCustomers where cust_id = ?";
+		$sql = "SELECT * FROM crudCustomers where userid = ?";
 		$q = $pdo->prepare($sql);
 		$q->execute(array($id));
 		$data = $q->fetch(PDO::FETCH_ASSOC);
-		$name = $data['cust_name'];
-		$phone = $data['cust_phone'];
-		$address = $data['cust_address'];
+		$name = $data['first_name'];
+		$phone = $data['phone_number'];
+		$address = $data['address'];
 		Database::disconnect();
 	}
 ?>

@@ -1,100 +1,130 @@
-<?php 
-session_start();	
-	require 'database.php';
+<?php
 
-	if ( !empty($_POST)) {
-		// keep track validation errors
-		$nameError = null;
-		$phoneError = null;
-		$addressError = null;
-		
-		// keep track post values
-		$name = $_POST['name'];
-		$phone = $_POST['phone'];
-		$address = $_POST['address'];
-		
-		// validate input
-		$valid = true;
-		if (empty($name)) {
-			$nameError = 'Please enter Name';
-			$valid = false;
+session_start();
+//connect to database
+include 'database.php';
+
+
+if(isset($_POST['register_btn']))
+{
+	$firstname = $_POST['firstname'];
+	$lastname = $_POST['lastname'];
+	$phonenumber = $_POST['phonenumber'];
+	$address = $_POST['address'];
+	$username = $_POST['username'];
+	$password = $_POST['password']; 
+	$password2 = $_POST['password2'];
+	
+
+
+$types = array('image/jpeg','image/gif','image/png');
+	if($filesize > 0) {
+		if(in_array($_FILES['userfile']['type'], $types)) {
 		}
-		
-		if (empty($phone)) {
-			$phoneError = 'Please enter phone Address';
-			$valid = false;
-		}
-		
-		if (empty($address)) {
-			$addressError = 'Please enter address Number';
-			$valid = false;
-		}
-		
-		// insert data
-		if ($valid) {
-			$pdo = Database::connect();
-			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			$sql = "INSERT INTO crudCustomers (cust_name, cust_phone, cust_address) values(?, ?, ?)";
-			$q = $pdo->prepare($sql);
-			$q->execute(array($name,$phone,$address));
-			Database::disconnect();
-			header("Location: index.php");
+		else {
+			$filename = null;
+			$filetype = null;
+			$filesize = null;
+			$filecontent = null;
+			$pictureError = 'improper file type';
+			$valid=false;
+			
 		}
 	}
+
+	$fileName = $_FILES['userfile']['name'];
+	$tmpName  = $_FILES['userfile']['tmp_name'];
+	$fileSize = $_FILES['userfile']['size'];
+	$fileType = $_FILES['userfile']['type'];
+	$content = file_get_contents($tmpName);
+	
+	
+     if($password==$password2)
+     {      
+            $password=md5($password); //hash password before storing for security purposes
+			$pdo = Database::connect();
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $sql="INSERT INTO crudCustomers (first_name, last_name, phone_number, address, username, password, filecontent) VALUES(?,?,?,?,?,?,?)";
+			$q = $pdo->prepare($sql);
+			$q->execute(array($firstname,$lastname,$phonenumber,$address, $username, $password, $content));
+			header("Location: index.php");
+			
+    }
+	 else
+    {
+      $_SESSION['message']="The two password do not match";   
+     }
+	 
+	 
+	
+
+}
+Database::disconnect();
 ?>
-
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="utf-8">
-    <link   href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="style.css"/>
 </head>
-
 <body>
-    <div class="container">
-    
-    			<div class="span10 offset1">
-    				<div class="row">
-		    			<h3>Create a Customer</h3>
-		    		</div>
-    		
-	    			<form class="form-horizontal" action="createCustomer.php" method="post">
-					  <div class="control-group <?php echo !empty($nameError)?'error':'';?>">
-					    <label class="control-label">Name</label>
-					    <div class="controls">
-					      	<input name="name" type="text"  placeholder="Name" value="<?php echo !empty($name)?$name:'';?>">
-					      	<?php if (!empty($nameError)): ?>
-					      		<span class="help-inline"><?php echo $nameError;?></span>
-					      	<?php endif; ?>
-					    </div>
-					  </div>
-					  <div class="control-group <?php echo !empty($phoneError)?'error':'';?>">
-					    <label class="control-label">Phone Number</label>
-					    <div class="controls">
-					      	<input name="phone" type="text" placeholder="Phone Number" value="<?php echo !empty($phone)?$phone:'';?>">
-					      	<?php if (!empty($phoneError)): ?>
-					      		<span class="help-inline"><?php echo $phoneError;?></span>
-					      	<?php endif;?>
-					    </div>
-					  </div>
-					  <div class="control-group <?php echo !empty($addressError)?'error':'';?>">
-					    <label class="control-label">Address</label>
-					    <div class="controls">
-					      	<input name="address" type="text"  placeholder="Address" value="<?php echo !empty($address)?$address:'';?>">
-					      	<?php if (!empty($addressError)): ?>
-					      		<span class="help-inline"><?php echo $addressError;?></span>
-					      	<?php endif;?>
-					    </div>
-					  </div>
-					  <div class="form-actions">
-						  <button type="submit" class="btn btn-success">Create</button>
-						  <a class="btn" href="index.php">Back</a>
-						</div>
-					</form>
+<div class="header">
+</div>
+<?php
+    if(isset($_SESSION['message']))
+    {
+         echo "<div id='error_msg'>".$_SESSION['message']."</div>";
+         unset($_SESSION['message']);
+    }
+?>
+<form method="post" action="register.php">
+  <table>
+	 <tr>
+           <td>First Name : </td>
+           <td><input type="text" name="firstname" class="textInput"></td>
+     </tr>
+	 <tr>
+           <td>Last Name : </td>
+           <td><input type="text" name="lastname" class="textInput"></td>
+     </tr>
+	 <tr>
+           <td>Phone Number : </td>
+           <td><input type="text" name="phonenumber" class="textInput"></td>
+     </tr>
+	 <tr>
+           <td>Address : </td>
+           <td><input type="text" name="address" class="textInput"></td>
+     </tr>
+     <tr>
+           <td>Username : </td>
+           <td><input type="text" name="username" class="textInput"></td>
+     </tr>
+      <tr>
+           <td>Password : </td>
+           <td><input type="password" name="password" class="textInput"></td>
+     </tr>
+      <tr>
+           <td>Password again: </td>
+           <td><input type="password" name="password2" class="textInput"></td>
+     </tr>
+	  <tr>
+        <div class="control-group <?php echo !empty($pictureError)?'error':'';?>">
+					<label class="control-label">Picture</label>
+					<div class="controls">
+						<input type="hidden" name="MAX_FILE_SIZE" value="16000000">
+						<input name="userfile" type="file" id="userfile">
+						
+					</div>
 				</div>
-				
-    </div> <!-- /container -->
-  </body>
+
+
+     </tr>
+      <tr>
+           <td><input type="submit" name="register_btn" class="Register"></td>
+		   <td><a href="index.php" class="btn btn-danger">Back</a></td>
+
+     </tr>
+  
+</table>
+</form>
+</body>
 </html>

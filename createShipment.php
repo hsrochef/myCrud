@@ -1,5 +1,10 @@
 <?php 
 session_start();
+if(!isset($_SESSION["userid"])){ // if "user" not set,
+	session_destroy();
+	header('Location: login.php');     // go to login page
+	exit;
+}
 	require 'database.php';
 
 	if ( !empty($_POST)) {
@@ -8,9 +13,9 @@ session_start();
 		$vendor_idError = null;
 		$dataError = null;
 		$amountError = null;
-		
+		$admin = $_SESSION['isadmin'];
 		// keep track post values
-		$cust_id = $_POST['cust_id'];
+		$cust_id = $_POST['userid'];
 		$vendor_id = $_POST['vendor_id'];
 		$data = $_POST['data'];
 		$amount = $_POST['amount'];
@@ -23,7 +28,7 @@ session_start();
 		}
 		
 		if (empty($vendor_id)) {
-			$vendor_idError = 'Please select a Room';
+			$vendor_idError = 'Please select a Vendor';
 			$valid = false;
 		}
 			if (empty($data)) {
@@ -40,9 +45,9 @@ session_start();
 		if ($valid) {
 			$pdo = Database::connect();
 			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			$sql = "INSERT INTO crudShipments (vendor_id, cust_id, shipment_data, shipment_amount) values(?, ?, ?, ?)";
+			$sql = "INSERT INTO crudShipments (crudShipments.vendor_id, crudShipments.cust_id, shipment_data, shipment_amount) values(?, ?, ?, ?)";
 			$q = $pdo->prepare($sql);
-			$q->execute(array($cust_id,$vendor_id, $data,$amount));
+			$q->execute(array($vendor_id,$cust_id,$data,$amount));
 			Database::disconnect();
 			header("Location: index.php");
 		}
@@ -66,21 +71,25 @@ session_start();
 		    			<h3>Create a Shipment</h3>
 		    		</div>
     		
-	    			<form class="form-horizontal" action="createShipmentTest.php" method="post">
+	    			<form class="form-horizontal" action="createShipment.php" method="post">
 					  <div class="control-group <?php echo !empty($cust_idError)?'error':'';?>">
 					    <label class="control-label">Customer</label>
 					    <div class="controls">
 					      	<?php
-								$pdo = Database::connect();
-								$sql = 'SELECT * FROM crudCustomers ORDER BY cust_id DESC';
+
+							
 								
-								echo "<select class='form-control' name='cust_id' id='cust_id'>";
+								
+								$pdo = Database::connect();
+								$sql = 'SELECT * FROM crudCustomers ORDER BY userid DESC';
+								echo "<select class='form-control' name='userid' id='id'>";
 								foreach ($pdo->query($sql) as $row) {
-									echo "<option value='" . $row['cust_id'] . " '> " . $row['cust_name'] . "</option>";
+									echo "<option value='" . $row['userid'] . " '>" . $row['first_name'] . " " . $row['last_name'] . "</option>";
 								}
 								echo "</select>";
-								
 								Database::disconnect();
+							
+
 							?>
 					      	<?php if (!empty($cust_idError)): ?>
 					      		<span class="help-inline"><?php echo $cust_idError;?></span>
@@ -94,7 +103,7 @@ session_start();
 								$pdo = Database::connect();
 								$sql = 'SELECT * FROM crudVendors ORDER BY vendor_id DESC';
 								
-								echo "<select class='form-control' name='vendor_id' id='vendor_id'>";
+								echo "<select class='form-control' name='vendor_id' id='id'>";
 								foreach ($pdo->query($sql) as $row) {
 									echo "<option value='" . $row['vendor_id'] . " '> " . $row['vendor_name'] . "</option>";
 								}

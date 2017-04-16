@@ -1,6 +1,10 @@
 <?php 
 session_start();
-	require 'database.php';
+if(!isset($_SESSION["userid"])){ // if "user" not set,
+	session_destroy();
+	header('Location: login.php');     // go to login page
+	exit;
+}	require 'database.php';
 	$id = null;
 	if ( !empty($_GET['id'])) {
 		$id = $_REQUEST['id'];
@@ -70,7 +74,19 @@ session_start();
 					  </div>
 
 					    <div class="form-actions">
-						  <a class="btn" href="index.php">Back</a>
+						<?php
+						
+						 if($_SESSION['isadmin']){
+						echo '<a class="btn" href="index.php">Back</a>';
+						}
+						else{
+						echo '<a class="btn" href="home.php">Back</a>';
+						} 
+						?>
+						
+						
+						
+						
 					   </div>
 					
 					 

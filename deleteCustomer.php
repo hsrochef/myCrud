@@ -1,5 +1,10 @@
 <?php 
 session_start();
+if(!isset($_SESSION["userid"])){ // if "user" not set,
+	session_destroy();
+	header('Location: login.php');     // go to login page
+	exit;
+}
 	require 'database.php';
 	$id = 0;
 	

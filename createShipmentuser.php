@@ -4,83 +4,53 @@ if(!isset($_SESSION["userid"])){ // if "user" not set,
 	session_destroy();
 	header('Location: login.php');     // go to login page
 	exit;
-}	require 'database.php';
+}
+	require 'database.php';
 
-	$id = null;
-	if ( !empty($_GET['id'])) {
-		$id = $_REQUEST['id'];
-	}
-	
-	if ( null==$id ) {
-		if($_SESSION['isadmin']){
-		header("Location: index.php");
-						}
-						else{
-		header("Location: home.php");
-						} 
-	}
-	
 	if ( !empty($_POST)) {
 		// keep track validation errors
 		$cust_idError = null;
 		$vendor_idError = null;
-		$data_Error = null;
-		$amount_Error = null;
-		
+		$dataError = null;
+		$amountError = null;
+		$admin = $_SESSION['isadmin'];
 		// keep track post values
-		$cust_id = $_POST['cust_id'];
+		$cust_id = $_POST['userid'];
 		$vendor_id = $_POST['vendor_id'];
-		$info = $_POST['info'];
+		$data = $_POST['data'];
 		$amount = $_POST['amount'];
 		
 		// validate input
 		$valid = true;
 		if (empty($cust_id)) {
-			$cust_idError = 'No Customer ID';
+			$cust_idError = 'Please select a Cutomer';
 			$valid = false;
 		}
 		
 		if (empty($vendor_id)) {
-			$vendor_id = 'No Vendor ID';
+			$vendor_idError = 'Please select a Vendor';
 			$valid = false;
 		}
-		
-		if (empty($info)) {
-			$data_Error = 'Please enter item details';
+			if (empty($data)) {
+			$dataError = 'Please enter valid data';
 			$valid = false;
 		}
-		
 		if (empty($amount)) {
-			$amount_Error = 'Please enter amount';
+			$amountError = 'Please enter valid amount';
 			$valid = false;
 		}
 		
-		// update data
+		
+		// insert data
 		if ($valid) {
 			$pdo = Database::connect();
 			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			$sql = "UPDATE crudShipments  set shipment_data =?, shipment_amount = ? WHERE shipment_id = ?";
+			$sql = "INSERT INTO crudShipments (crudShipments.vendor_id, crudShipments.cust_id, shipment_data, shipment_amount) values(?, ?, ?, ?)";
 			$q = $pdo->prepare($sql);
-			$q->execute(array($info,$amount,$id));
+			$q->execute(array($vendor_id,$cust_id,$data,$amount));
 			Database::disconnect();
-if($_SESSION['isadmin']){
-		header("Location: index.php");
-						}
-						else{
-		header("Location: home.php");
-						} 		}
-	} else {
-		$pdo = Database::connect();
-		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		$sql = "SELECT * FROM crudShipments WHERE shipment_id = ?";
-		$q = $pdo->prepare($sql);
-		$q->execute(array($id));
-		$data = $q->fetch(PDO::FETCH_ASSOC);
-		$cust_id = $data['cust_id'];
-		$vendor_id = $data['vendor_id'];
-		$info = $data['shipment_data'];
-		$amount = $data['shipment_amount'];
-		Database::disconnect();
+			header("Location: home.php");
+		}
 	}
 ?>
 
@@ -98,33 +68,52 @@ if($_SESSION['isadmin']){
     
     			<div class="span10 offset1">
     				<div class="row">
-		    			<h3>Update a Shipment</h3>
+		    			<h3>Create a Shipment</h3>
 		    		</div>
     		
-	    			<form class="form-horizontal" action="updateShipment.php?id=<?php echo $id ?>" method="post">
+	    			<form class="form-horizontal" action="createShipmentuser.php" method="post">
 					  <div class="control-group <?php echo !empty($cust_idError)?'error':'';?>">
-					    <label class="control-label">Customer ID</label>
+					    <label class="control-label">Customer</label>
 					    <div class="controls">
-					      	<input name="cust_id" type="text"  placeholder="ID" value="<?php echo !empty($cust_id)?$cust_id:'';?>" readonly style="background-color: #DCDCDC;">
+					      	<?php
+							$pdo = Database::connect();
+								$sql = 'SELECT * FROM crudCustomers WHERE userid = "'.$_SESSION['userid'].'" ORDER BY userid DESC';
+								echo "<select class='form-control' name='userid' id='id'>";
+								foreach ($pdo->query($sql) as $row) {
+									echo "<option value='" . $row['userid'] . " '>" . $row['first_name'] . " " . $row['last_name'] . "</option>";
+								}
+								echo "</select>";
+								Database::disconnect();
+							?>
 					      	<?php if (!empty($cust_idError)): ?>
 					      		<span class="help-inline"><?php echo $cust_idError;?></span>
 					      	<?php endif; ?>
 					    </div>
 					  </div>
 					  <div class="control-group <?php echo !empty($vendor_idError)?'error':'';?>">
-					    <label class="control-label">Vendor ID</label>
+					    <label class="control-label">Vendor</label>
 					    <div class="controls">
-					      	<input name="vendor_id" type="text"  placeholder="ID" value="<?php echo !empty($vendor_id)?$vendor_id:'';?>" readonly style="background-color: #DCDCDC;">
+					      	<?php
+								$pdo = Database::connect();
+								$sql = 'SELECT * FROM crudVendors ORDER BY vendor_id DESC';
+								
+								echo "<select class='form-control' name='vendor_id' id='id'>";
+								foreach ($pdo->query($sql) as $row) {
+									echo "<option value='" . $row['vendor_id'] . " '> " . $row['vendor_name'] . "</option>";
+								}
+								echo "</select>";
+								
+								Database::disconnect();
+							?>
 					      	<?php if (!empty($vendor_idError)): ?>
 					      		<span class="help-inline"><?php echo $vendor_idError;?></span>
 					      	<?php endif; ?>
 					    </div>
 					  </div>
-					   </div>
 							 <div class="control-group <?php echo !empty($dataError)?'error':'';?>">
 					    <label class="control-label">Shipment Data</label>
 					    <div class="controls">
-					      	<input name="info" type="text"  placeholder="info" value="<?php echo !empty($info)?$info:'';?>">
+					      	<input name="data" type="text"  placeholder="data" value="<?php echo !empty($data)?$data:'';?>">
 					      	<?php if (!empty($dataError)): ?>
 					      		<span class="help-inline"><?php echo $dataError;?></span>
 					      	<?php endif;?>
@@ -138,23 +127,13 @@ if($_SESSION['isadmin']){
 					      		<span class="help-inline"><?php echo $amountError;?></span>
 					      	<?php endif;?>
 					    </div>
-					  </div>
-					 
-					 
+					  </div>		  
 					  <div class="form-actions">
-						  <button type="submit" class="btn btn-success">Update</button>
-<?php
-						
-						 if($_SESSION['isadmin']){
-						echo '<a class="btn" href="index.php">Back</a>';
-						}
-						else{
-						echo '<a class="btn" href="home.php">Back</a>';
-						} 
-						?>						</div>
+						  <button type="submit" class="btn btn-success">Create</button>
+						  <a class="btn" href="home.php">Back</a>
+						</div>
 					</form>
 				</div>
-				
     </div> <!-- /container -->
   </body>
 </html>

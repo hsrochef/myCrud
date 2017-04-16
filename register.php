@@ -44,7 +44,7 @@ $types = array('image/jpeg','image/gif','image/png');
             $password=md5($password); //hash password before storing for security purposes
 			$pdo = Database::connect();
 			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $sql="INSERT INTO crudPasswords (first_name, last_name, phone_number, address, username, password, filecontent) VALUES(?,?,?,?,?,?,?)";
+            $sql="INSERT INTO crudCustomers (first_name, last_name, phone_number, address, username, password, filecontent) VALUES(?,?,?,?,?,?,?)";
 			$q = $pdo->prepare($sql);
 			$q->execute(array($firstname,$lastname,$phonenumber,$address, $username, $password, $content));
 			header("Location: index.php");
