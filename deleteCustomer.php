@@ -19,7 +19,7 @@ if(!isset($_SESSION["userid"])){ // if "user" not set,
 		// delete data
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		$sql = "DELETE FROM crudCustomers  WHERE cust_id = ?";
+		$sql = "DELETE FROM crudCustomers  WHERE userid = ?";
 		$q = $pdo->prepare($sql);
 		$q->execute(array($id));
 		Database::disconnect();

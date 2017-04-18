@@ -31,8 +31,12 @@ public function displayCustomers()
                             echo '<td>'. $row['first_name'] . '</td>';
                             echo '<td>'. $row['phone_number'] . '</td>';
                             echo '<td>'. $row['address'] . '</td>';
+							
+
 							echo '<td width=250>';
-						
+							echo '<a class="btn btn-success" href="readCustomer.php?id='.$row['userid'].'">Read</a>';
+							echo '&nbsp;';
+
 							echo '<a class="btn btn-success" href="updateCustomer.php?id='.$row['userid'].'">Update</a>';
 							echo '&nbsp;';
 							echo '<a class="btn btn-danger" href="deleteCustomer.php?id='.$row['userid'].'">Delete</a>';
@@ -109,7 +113,9 @@ public function displayCustomersHeading()
 		    echo'<div class="container">
             <div class="row">
                 <h3>Rochefort CRUD Customer <a href="createCustomer.php" class="btn btn-success">Create</a></h3>
-			</div>
+				<h3>Welcome Admin, '.$_SESSION['first_name'].'</h3>';
+
+			echo '</div>
             <div class="row">
 			   
                 <table class="table table-striped table-bordered">

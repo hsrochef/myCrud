@@ -15,7 +15,7 @@ if(!isset($_SESSION["userid"])){ // if "user" not set,
 	} else {
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		$sql = "SELECT * FROM crudCustomers where cust_id = ?";
+		$sql = "SELECT * FROM crudCustomers where userid = ?";
 		$q = $pdo->prepare($sql);
 		$q->execute(array($id));
 		$data = $q->fetch(PDO::FETCH_ASSOC);
@@ -44,7 +44,7 @@ if(!isset($_SESSION["userid"])){ // if "user" not set,
 					    <label class="control-label">Customer Name</label>
 					    <div class="controls">
 						    <label class="checkbox">
-						     	<?php echo $data['cust_name'];?>
+						     	<?php echo $data['first_name'];?>
 						    </label>
 					    </div>
 					  </div>
@@ -52,7 +52,7 @@ if(!isset($_SESSION["userid"])){ // if "user" not set,
 					    <label class="control-label">Customer Phone</label>
 					    <div class="controls">
 					      	<label class="checkbox">
-						     	<?php echo $data['cust_phone'];?>
+						     	<?php echo $data['phone_number'];?>
 						    </label>
 					    </div>
 					  </div>
@@ -60,11 +60,18 @@ if(!isset($_SESSION["userid"])){ // if "user" not set,
 					    <label class="control-label">Customer Address</label>
 					    <div class="controls">
 					      	<label class="checkbox">
-						     	<?php echo $data['cust_address'];?>
+						     	<?php echo $data['address'];?>
 						    </label>
 					    </div>
 					  </div>
-
+					<div class="control-group">
+					    <label class="control-label">Customer Photo</label>
+					    <div class="controls">
+					      	<label class="checkbox">
+						     	<?php echo '<img src="data:image/jpeg;base64,'.base64_encode( $data['filecontent'] ).'"/>';?>
+						    </label>
+					    </div>
+					  </div>
 					    <div class="form-actions">
 						  <a class="btn" href="index.php">Back</a>
 					   </div>

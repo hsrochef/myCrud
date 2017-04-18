@@ -28,6 +28,26 @@ if(!isset($_SESSION["userid"])){ // if "user" not set,
 		
 		// validate input
 		$valid = true;
+$fileName = $_FILES['userfile']['name'];
+	$tmpName  = $_FILES['userfile']['tmp_name'];
+	$fileSize = $_FILES['userfile']['size'];
+	$fileType = $_FILES['userfile']['type'];
+	$content = file_get_contents($tmpName);
+
+$types = array('image/jpeg','image/gif','image/png');
+	if($filesize > 0) {
+		if(in_array($_FILES['userfile']['type'], $types)) {
+		}
+		else {
+			$filename = null;
+			$filetype = null;
+			$filesize = null;
+			$filecontent = null;
+			$pictureError = 'improper file type';
+			$valid=false;
+			
+		}
+	}
 
 		if (empty($name)) {
 			$nameError = 'Please enter name';
@@ -48,9 +68,9 @@ if(!isset($_SESSION["userid"])){ // if "user" not set,
 		if ($valid) {
 			$pdo = Database::connect();
 			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			$sql = "UPDATE crudCustomers set first_name = ?, phone_number = ?, address = ? WHERE userid = ?";
+			$sql = "UPDATE crudCustomers set first_name = ?, phone_number = ?, address = ?, filecontent = ? WHERE userid = ?";
 			$q = $pdo->prepare($sql);
-			$q->execute(array($name,$phone,$address,$id));
+			$q->execute(array($name,$phone,$address,$content,$id));
 			Database::disconnect();
 			header("Location: index.php");
 		}
@@ -85,7 +105,7 @@ if(!isset($_SESSION["userid"])){ // if "user" not set,
 		    			<h3>Update a Customer</h3>
 		    		</div>
     		
-	    			<form class="form-horizontal" action="updateCustomer.php?id=<?php echo $id?>" method="post">
+	    			<form class="form-horizontal" action="updateCustomer.php?id=<?php echo $id?>" method="post" enctype="multipart/form-data">
 					  <div class="control-group <?php echo !empty($nameError)?'error':'';?>">
 					    <label class="control-label">name</label>
 					    <div class="controls">
@@ -113,6 +133,14 @@ if(!isset($_SESSION["userid"])){ // if "user" not set,
 					      	<?php endif; ?>
 					    </div>
 					  </div>
+					   <div class="control-group <?php echo !empty($pictureError)?'error':'';?>">
+					<label class="control-label">Picture</label>
+					<div class="controls">
+						<input type="hidden" name="MAX_FILE_SIZE" value="16000000">
+						<input name="userfile" type="file" id="userfile">
+						
+					</div>
+				</div>
 							
 
 					  <div class="form-actions">

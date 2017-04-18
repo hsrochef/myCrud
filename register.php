@@ -15,7 +15,13 @@ if(isset($_POST['register_btn']))
 	$password = $_POST['password']; 
 	$password2 = $_POST['password2'];
 	
-
+	
+	// initialize $_FILES variables
+	$fileName = $_FILES['userfile']['name'];
+	$tmpName  = $_FILES['userfile']['tmp_name'];
+	$fileSize = $_FILES['userfile']['size'];
+	$fileType = $_FILES['userfile']['type'];
+	$content = file_get_contents($tmpName);
 
 $types = array('image/jpeg','image/gif','image/png');
 	if($filesize > 0) {
@@ -32,11 +38,9 @@ $types = array('image/jpeg','image/gif','image/png');
 		}
 	}
 
-	$fileName = $_FILES['userfile']['name'];
-	$tmpName  = $_FILES['userfile']['tmp_name'];
-	$fileSize = $_FILES['userfile']['size'];
-	$fileType = $_FILES['userfile']['type'];
-	$content = file_get_contents($tmpName);
+
+
+	
 	
 	
      if($password==$password2)
@@ -69,7 +73,7 @@ Database::disconnect();
 </head>
 <body>
 <div class="header">
-    <h1>Register</h1>
+    <h1>Register A Customer</h1>
 </div>
 <?php
     if(isset($_SESSION['message']))
@@ -78,7 +82,7 @@ Database::disconnect();
          unset($_SESSION['message']);
     }
 ?>
-<form method="post" action="register.php">
+<form class="form-horizontal" action="register.php" method="post" enctype="multipart/form-data">
   <table>
 	 <tr>
            <td>First Name : </td>
@@ -109,14 +113,15 @@ Database::disconnect();
            <td><input type="password" name="password2" class="textInput"></td>
      </tr>
 	  <tr>
-        <div class="control-group <?php echo !empty($pictureError)?'error':'';?>">
-					<label class="control-label">Picture</label>
+      <div class="control-group <?php echo !empty($pictureError)?'error':'';?>">
+					<td><label class="control-label">Picture</label></td>
 					<div class="controls">
-						<input type="hidden" name="MAX_FILE_SIZE" value="16000000">
+						<td><input type="hidden" name="MAX_FILE_SIZE" value="16000000">
 						<input name="userfile" type="file" id="userfile">
 						
 					</div>
 				</div>
+
 
 
      </tr>

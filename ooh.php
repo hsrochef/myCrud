@@ -31,6 +31,8 @@ public function displayCustomers()
                             echo '<td>'. $row['first_name'] . '</td>';
                             echo '<td>'. $row['last_name'] . '</td>';
                             echo '<td>'. $row['address'] . '</td>';
+							echo '<td><a class="btn btn-success" href="readCustomer.php?id='.$row['userid'].'">Read</a></td>';
+
 						
                    }
                    Database::disconnect();
@@ -98,7 +100,9 @@ public function displayCustomersHeading()
 	{
 		    echo'<div class="container">
             <div class="row">
-                <h3>Rochefort CRUD Customer </h3>
+                <h3>Rochefort CRUD Customer Welcome User: '.$_SESSION['first_name'].'</h3>
+				<h3>Welcome User, '.$_SESSION['first_name'].'</h3>
+
 			</div>
             <div class="row">
 			   
@@ -107,7 +111,9 @@ public function displayCustomersHeading()
                     <tr>
                       <th>Customer Name</th>
                       <th>Customer Phone</th>
-                      <th>Customer Address</th>
+                      <th>Customer Address</th>			
+					  <th>Action</th>
+
                     </tr>
                   </thead>
                   <tbody>';

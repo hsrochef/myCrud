@@ -17,6 +17,12 @@ if(isset($_POST['register_btn']))
 	
 
 
+$fileName = $_FILES['userfile']['name'];
+	$tmpName  = $_FILES['userfile']['tmp_name'];
+	$fileSize = $_FILES['userfile']['size'];
+	$fileType = $_FILES['userfile']['type'];
+	$content = file_get_contents($tmpName);
+
 $types = array('image/jpeg','image/gif','image/png');
 	if($filesize > 0) {
 		if(in_array($_FILES['userfile']['type'], $types)) {
@@ -31,13 +37,6 @@ $types = array('image/jpeg','image/gif','image/png');
 			
 		}
 	}
-
-	$fileName = $_FILES['userfile']['name'];
-	$tmpName  = $_FILES['userfile']['tmp_name'];
-	$fileSize = $_FILES['userfile']['size'];
-	$fileType = $_FILES['userfile']['type'];
-	$content = file_get_contents($tmpName);
-	
 	
      if($password==$password2)
      {      
@@ -76,7 +75,7 @@ Database::disconnect();
          unset($_SESSION['message']);
     }
 ?>
-<form method="post" action="register.php">
+<form class="form-horizontal" action="createCustomer.php" method="post" enctype="multipart/form-data">
   <table>
 	 <tr>
            <td>First Name : </td>
